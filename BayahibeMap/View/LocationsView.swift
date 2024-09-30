@@ -6,24 +6,61 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct LocationsView: View {
     
-    @Environment(LocationsViewModel.self) var locationsViewModel
+    @EnvironmentObject private var locationsViewModel: LocationsViewModel
     
     var body: some View {
-        VStack {
-            List {
-                ForEach(locationsViewModel.locations) { loca in
-                    Text(loca.id)
-                }
+        ZStack {
+            Map(coordinateRegion: $locationsViewModel.mapRegion)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                header
+                    .padding()
+                
+                Spacer()
             }
         }
-        .padding()
     }
 }
 
 #Preview {
     LocationsView()
-        .environment(LocationsViewModel())
+        .environmentObject(LocationsViewModel())
+}
+
+extension LocationsView {
+    
+    private var header: some View {
+        VStack {
+            Button {
+                locationsViewModel.toggleShowLocationList()
+            } label: {
+                Text(locationsViewModel.mapLocation.name + ", "  + locationsViewModel.mapLocation.cityName)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.black)
+                    .frame(height: 55)
+                    .frame(maxWidth: .infinity)
+                    .animation(.none, value: locationsViewModel.mapLocation)
+                    .overlay(alignment: .leading) {
+                        Image(systemName: "arrow.down")
+                            .font(.headline)
+                            .foregroundStyle(.black)
+                            .padding()
+                            .rotationEffect(Angle(degrees: locationsViewModel.showLocationList ? 180 : 0))
+                    }
+            }
+            if locationsViewModel.showLocationList {
+                LocationsListView()
+            }
+        }
+        .background(.thickMaterial)
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 15)
+    }
+    
 }

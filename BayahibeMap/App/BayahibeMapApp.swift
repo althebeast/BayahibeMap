@@ -10,12 +10,12 @@ import SwiftUI
 @main
 struct BayahibeMapApp: App {
     
-    @State private var locationsViewModel = LocationsViewModel()
+    @StateObject private var locationsViewModel = LocationsViewModel()
     
     var body: some Scene {
         WindowGroup {
             LocationsView()
-                .environment(locationsViewModel)
+                .environmentObject(locationsViewModel)
         }
     }
 }
