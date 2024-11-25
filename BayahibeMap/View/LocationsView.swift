@@ -11,7 +11,10 @@ import MapKit
 struct LocationsView: View {
     
     @EnvironmentObject private var locationsViewModel: LocationsViewModel
+    
     var location: Location?
+    
+    let maxWidthForIpad: CGFloat = 700
     
     var body: some View {
         ZStack {
@@ -21,12 +24,14 @@ struct LocationsView: View {
             VStack(spacing: 0) {
                 Header
                     .padding()
+                    .frame(maxWidth: maxWidthForIpad)
                 Spacer()
                 locationsPreviewStack
             }
         }
         .sheet(item: $locationsViewModel.showSheetLocation, onDismiss: nil) { showSheet in
             LocationDetailView(location: showSheet)
+                .frame(width: UIDevice.current.userInterfaceIdiom == .pad ? UIScreen.main.bounds.width * 0.75 : UIScreen.main.bounds.width, height: UIDevice.current.userInterfaceIdiom == .pad ? UIScreen.main.bounds.height * 0.75 : UIScreen.main.bounds.height)
         }
     }
 }
@@ -46,14 +51,14 @@ extension LocationsView {
                 Text(locationsViewModel.mapLocation.name + ", "  + locationsViewModel.mapLocation.cityName)
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color("HeaderTextColor"))
                     .frame(height: 55)
                     .frame(maxWidth: .infinity)
                     .animation(.none, value: locationsViewModel.mapLocation)
                     .overlay(alignment: .leading) {
                         Image(systemName: "arrow.down")
                             .font(.headline)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(Color("HeaderTextColor"))
                             .padding()
                             .rotationEffect(Angle(degrees: locationsViewModel.showLocationList ? 180 : 0))
                     }
@@ -89,6 +94,8 @@ extension LocationsView {
                     LocationPreviewView(location: location)
                         .shadow(color: Color.black.opacity(0.3), radius: 20)
                         .padding()
+                        .frame(maxWidth: maxWidthForIpad)
+                        .frame(maxWidth: .infinity)
                         .transition(.asymmetric(
                             insertion: .move(edge: .trailing),
                             removal: .move(edge: .leading)))

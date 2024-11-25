@@ -50,7 +50,7 @@ extension LocationDetailView {
                 Image(imageName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width)
+                    .frame(width: UIDevice.current.userInterfaceIdiom == .pad ? UIScreen.main.bounds.width * 0.75 : UIScreen.main.bounds.width)
                     .clipped()
             }
         }
@@ -110,6 +110,7 @@ extension LocationDetailView {
                 .clipShape(Circle())
                 .shadow(radius: 4)
                 .padding()
+                .padding(.top, 40)
         }
 
     }
