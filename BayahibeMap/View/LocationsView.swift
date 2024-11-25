@@ -11,43 +11,34 @@ import MapKit
 struct LocationsView: View {
     
     @EnvironmentObject private var locationsViewModel: LocationsViewModel
+    var location: Location?
     
     var body: some View {
         ZStack {
-            Map(coordinateRegion: $locationsViewModel.mapRegion)
+            mapLayer
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                header
+                Header
                     .padding()
-                
                 Spacer()
-                
-                ZStack {
-                    ForEach(locationsViewModel.locations) { location in
-                        if locationsViewModel.mapLocation == location {
-                            LocationPreviewView(location: location)
-                                .shadow(color: Color.black.opacity(0.3), radius: 20)
-                                .padding()
-                                .transition(.asymmetric(
-                                    insertion: .move(edge: .trailing),
-                                    removal: .move(edge: .leading)))
-                        }
-                    }
-                }
+                locationsPreviewStack
             }
+        }
+        .sheet(item: $locationsViewModel.showSheetLocation, onDismiss: nil) { showSheet in
+            LocationDetailView(location: showSheet)
         }
     }
 }
 
 #Preview {
-    LocationsView()
+    LocationsView(location: LocationsDataService.locations.first!)
         .environmentObject(LocationsViewModel())
 }
 
 extension LocationsView {
     
-    private var header: some View {
+    private var Header: some View {
         VStack {
             Button {
                 locationsViewModel.toggleShowLocationList()
@@ -76,4 +67,33 @@ extension LocationsView {
         .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 15)
     }
     
+    private var mapLayer: some View {
+        Map(coordinateRegion: $locationsViewModel.mapRegion,
+            annotationItems: locationsViewModel.locations,
+            annotationContent: { location in
+            MapAnnotation(coordinate: location.coordinates) {
+                LocationMapAnotationView()
+                    .scaleEffect(locationsViewModel.mapLocation == location ? 1 : 0.7)
+                    .shadow(radius: 10)
+                    .onTapGesture {
+                        locationsViewModel.mapLocation = location
+                    }
+            }
+        })
+    }
+    
+    private var locationsPreviewStack: some View {
+        ZStack {
+            ForEach(locationsViewModel.locations) { location in
+                if locationsViewModel.mapLocation == location {
+                    LocationPreviewView(location: location)
+                        .shadow(color: Color.black.opacity(0.3), radius: 20)
+                        .padding()
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)))
+                }
+            }
+        }
+    }
 }
